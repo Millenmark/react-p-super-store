@@ -5,6 +5,7 @@ import { useScrollToTop } from 'src/hooks/use-scroll-to-top';
 
 import Router from 'src/routes/sections';
 import ThemeProvider from 'src/theme';
+import { GeneralContextProvider } from './contexts/general-context';
 
 // ----------------------------------------------------------------------
 
@@ -12,8 +13,10 @@ export default function App() {
   useScrollToTop();
 
   return (
-    <ThemeProvider>
-      <Router />
-    </ThemeProvider>
+    <GeneralContextProvider>
+      <ThemeProvider>
+        <Router />
+      </ThemeProvider>
+    </GeneralContextProvider>
   );
 }
