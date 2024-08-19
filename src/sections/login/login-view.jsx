@@ -25,10 +25,12 @@ export default function LoginView() {
 
   const router = useRouter();
 
+  // STATE VARIABLES
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClick = () => {
-    router.push('/register');
+    // router.push('/register');
+    console.log('Log in successful');
   };
 
   const renderForm = (
@@ -97,12 +99,12 @@ export default function LoginView() {
             maxWidth: 420,
           }}
         >
-          <Typography variant="h4">Sign in to Minimal</Typography>
+          <Typography variant="h4">Sign in to Super Store</Typography>
 
           <Typography variant="body2" sx={{ mt: 2, mb: 5 }}>
             Don’t have an account?
-            <Link variant="subtitle2" sx={{ ml: 0.5 }}>
-              Get started
+            <Link variant="subtitle2" sx={{ ml: 0.5 }} href="/register">
+              Register Here
             </Link>
           </Typography>
 
