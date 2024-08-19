@@ -1,18 +1,19 @@
 import { useState } from 'react';
 
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
+import {
+  Box,
+  Link,
+  Card,
+  Stack,
+  TextField,
+  Typography,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
-import InputAdornment from '@mui/material/InputAdornment';
 
 import { useRouter } from 'src/routes/hooks';
-
 import { bgGradient } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
@@ -37,9 +38,17 @@ export default function RegisterView() {
   });
 
   // COMMON VARIABLES
-  const formMaxLength = {
-    firstName: 20,
-    lastName: 20,
+  const formKeyProps = {
+    firstName: {
+      maxLength: 20,
+      hasError: [false, 'First Name should not be empty'],
+      minLength: [3, 'First name must'],
+    },
+    lastName: {
+      maxLength: 20,
+      hasError: false,
+      errorMessage: 'Last Name should not be empty',
+    },
     email: 30,
     password: 10,
     confirmPassword: 10,
@@ -50,6 +59,12 @@ export default function RegisterView() {
   const handleClick = () => {
     // router.push('/dashboard');
     console.log(formValues);
+    const isAllEmpty =
+      !isEmailValid(formValues.email) ||
+      !isPasswordConfirmed ||
+      Object.values(formValues).some((value) => value === '');
+
+    console.log(isAllEmpty);
 
     // ? RESETTING THE FORM
     setFormValues((prev) =>
@@ -94,8 +109,10 @@ export default function RegisterView() {
             value.length !== formMaxLength.email &&
             setFormValues((prev) => ({ ...prev, email: value }))
           }
-          error={!isEmailValid(formValues.email)}
-          helperText={!isEmailValid(formValues.email) && 'Email is invalid'}
+          error={formValues.email !== '' && !isEmailValid(formValues.email)}
+          helperText={
+            formValues.email !== '' && !isEmailValid(formValues.email) && 'Email is invalid'
+          }
         />
 
         <TextField
@@ -162,11 +179,6 @@ export default function RegisterView() {
         variant="contained"
         color="inherit"
         onClick={handleClick}
-        disabled={
-          !isEmailValid(formValues.email) ||
-          !isPasswordConfirmed ||
-          Object.values(formValues).some((value) => value === '')
-        }
       >
         Register
       </LoadingButton>
