@@ -17,6 +17,7 @@ import { bgGradient } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
+import { isEmailValid } from 'src/utils/general-functions';
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +46,7 @@ export default function RegisterView() {
   };
   const isPasswordConfirmed = formValues.password === formValues.confirmPassword;
 
+  // HANDLER FUNCTIONS
   const handleClick = () => {
     // router.push('/dashboard');
     console.log(formValues);
@@ -92,6 +94,8 @@ export default function RegisterView() {
             value.length !== formMaxLength.email &&
             setFormValues((prev) => ({ ...prev, email: value }))
           }
+          error={!isEmailValid(formValues.email)}
+          helperText={!isEmailValid(formValues.email) && 'Email is invalid'}
         />
 
         <TextField
@@ -141,7 +145,7 @@ export default function RegisterView() {
             ),
           }}
           error={!isPasswordConfirmed}
-          helperText={isPasswordConfirmed ? '' : "Password doesn't match"}
+          helperText={!isPasswordConfirmed && "Password doesn't match"}
         />
       </Stack>
 
@@ -158,7 +162,11 @@ export default function RegisterView() {
         variant="contained"
         color="inherit"
         onClick={handleClick}
-        disabled={!isPasswordConfirmed}
+        disabled={
+          !isEmailValid(formValues.email) ||
+          !isPasswordConfirmed ||
+          Object.values(formValues).some((value) => value === '')
+        }
       >
         Register
       </LoadingButton>
