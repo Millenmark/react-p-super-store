@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 
+import LoadingButton from '@mui/lab/LoadingButton';
+import { alpha, useTheme } from '@mui/material/styles';
 import {
   Box,
   Link,
@@ -10,159 +13,108 @@ import {
   IconButton,
   InputAdornment,
 } from '@mui/material';
-import LoadingButton from '@mui/lab/LoadingButton';
-import { alpha, useTheme } from '@mui/material/styles';
 
-import { useRouter } from 'src/routes/hooks';
 import { bgGradient } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
-import { isEmailValid } from 'src/utils/general-functions';
+
+import { FormProvider } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
 export default function RegisterView() {
-  const theme = useTheme();
+  const { handleSubmit, control } = useForm({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
 
-  const router = useRouter();
+  const theme = useTheme();
 
   // STATE VARIABLES
   const [show, setShow] = useState({ password: false, confirmPassword: false });
-  const [formValues, setFormValues] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-
-  // COMMON VARIABLES
-  const formKeyProps = {
-    firstName: {
-      maxLength: 20,
-      hasError: [false, 'First Name should not be empty'],
-      minLength: [3, 'First name must'],
-    },
-    lastName: {
-      maxLength: 20,
-      hasError: false,
-      errorMessage: 'Last Name should not be empty',
-    },
-    email: 30,
-    password: 10,
-    confirmPassword: 10,
-  };
-  const isPasswordConfirmed = formValues.password === formValues.confirmPassword;
 
   // HANDLER FUNCTIONS
-  const handleClick = () => {
-    // router.push('/dashboard');
-    console.log(formValues);
-    const isAllEmpty =
-      !isEmailValid(formValues.email) ||
-      !isPasswordConfirmed ||
-      Object.values(formValues).some((value) => value === '');
-
-    console.log(isAllEmpty);
-
-    // ? RESETTING THE FORM
-    setFormValues((prev) =>
-      Object.keys(prev).reduce((acc, key) => {
-        acc[key] = '';
-        return acc;
-      }, {})
-    );
+  const onSubmit = (data) => {
+    console.log(data);
   };
 
   const renderForm = (
     <>
       <Stack spacing={3}>
-        <TextField
-          type="text"
+        <Controller
+          control={control}
           name="firstName"
-          label="First Name"
-          value={formValues.firstName}
-          onChange={({ target: { value } }) =>
-            value.length !== formMaxLength.firstName &&
-            setFormValues((prev) => ({ ...prev, firstName: value }))
-          }
+          render={({ field }) => <TextField {...field} required type="text" label="First Name" />}
         />
 
-        <TextField
-          type="text"
+        <Controller
+          control={control}
           name="lastName"
-          label="Last Name"
-          value={formValues.lastName}
-          onChange={({ target: { value } }) =>
-            value.length !== formMaxLength.lastName &&
-            setFormValues((prev) => ({ ...prev, lastName: value }))
-          }
+          render={({ field }) => <TextField {...field} required type="text" label="Last Name" />}
         />
 
-        <TextField
-          type="email"
+        <Controller
+          control={control}
           name="email"
-          label="Email address"
-          value={formValues.email}
-          onChange={({ target: { value } }) =>
-            value.length !== formMaxLength.email &&
-            setFormValues((prev) => ({ ...prev, email: value }))
-          }
-          error={formValues.email !== '' && !isEmailValid(formValues.email)}
-          helperText={
-            formValues.email !== '' && !isEmailValid(formValues.email) && 'Email is invalid'
-          }
+          render={({ field }) => (
+            <TextField {...field} required type="email" label="Email Address" />
+          )}
         />
 
-        <TextField
+        <Controller
+          control={control}
           name="password"
-          label="Password"
-          type={show.password ? 'text' : 'password'}
-          value={formValues.password}
-          onChange={({ target: { value } }) =>
-            value.length !== formMaxLength.password &&
-            setFormValues((prev) => ({ ...prev, password: value }))
-          }
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShow((prev) => ({ ...prev, password: !show.password }))}
-                  edge="end"
-                >
-                  <Iconify icon={show.password ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Password"
+              type={show.password ? 'text' : 'password'}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShow((prev) => ({ ...prev, password: !show.password }))}
+                      edge="end"
+                    >
+                      <Iconify icon={show.password ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
         />
 
-        <TextField
+        <Controller
+          control={control}
           name="confirmPassword"
-          label="Confirm Password"
-          type={show.confirmPassword ? 'text' : 'password'}
-          value={formValues.confirmPassword}
-          onChange={({ target: { value } }) =>
-            value.length !== formMaxLength.confirmPassword &&
-            setFormValues((prev) => ({ ...prev, confirmPassword: value }))
-          }
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() =>
-                    setShow((prev) => ({ ...prev, confirmPassword: !show.confirmPassword }))
-                  }
-                  edge="end"
-                >
-                  <Iconify icon={show.confirmPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-          error={!isPasswordConfirmed}
-          helperText={!isPasswordConfirmed && "Password doesn't match"}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Confirm Password"
+              type={show.password ? 'text' : 'password'}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() =>
+                        setShow((prev) => ({ ...prev, confirmPassword: !show.confirmPassword }))
+                      }
+                      edge="end"
+                    >
+                      <Iconify icon={show.confirmPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
         />
       </Stack>
 
@@ -172,21 +124,14 @@ export default function RegisterView() {
         </Link> */}
       </Stack>
 
-      <LoadingButton
-        fullWidth
-        size="large"
-        type="submit"
-        variant="contained"
-        color="inherit"
-        onClick={handleClick}
-      >
+      <LoadingButton fullWidth size="large" type="submit" variant="contained" color="inherit">
         Register
       </LoadingButton>
     </>
   );
 
   return (
-    <Box
+    <FormProvider
       sx={{
         ...bgGradient({
           color: alpha(theme.palette.background.default, 0.9),
@@ -194,6 +139,7 @@ export default function RegisterView() {
         }),
         height: 1,
       }}
+      onSubmit={handleSubmit(onSubmit)}
     >
       <Logo
         sx={{
@@ -223,6 +169,6 @@ export default function RegisterView() {
           {renderForm}
         </Card>
       </Stack>
-    </Box>
+    </FormProvider>
   );
 }
