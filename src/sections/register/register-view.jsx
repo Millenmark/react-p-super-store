@@ -1,10 +1,12 @@
+// import/no-extraneous-dependencies
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import {
-  Box,
   Link,
   Card,
   Stack,
@@ -18,13 +20,19 @@ import { bgGradient } from 'src/theme/css';
 
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
-
 import { FormProvider } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
+const registerSchema = yup.object({
+  firstName: yup.string().required('First Name is required'),
+  lastName: yup.string().required('Last Name is required'),
+  email: yup.string().required('Email is required').email('Email must be a valid email address'),
+  password: yup.string().required('Password is required'),
+  confirmPassword: yup.string().oneOf([yup.ref('password'), null], 'Password must match'),
+});
 
 export default function RegisterView() {
-  const { handleSubmit, control } = useForm({
+  const { handleSubmit, reset, control } = useForm({
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -32,6 +40,7 @@ export default function RegisterView() {
       password: '',
       confirmPassword: '',
     },
+    resolver: yupResolver(registerSchema),
   });
 
   const theme = useTheme();
@@ -42,6 +51,7 @@ export default function RegisterView() {
   // HANDLER FUNCTIONS
   const onSubmit = (data) => {
     console.log(data);
+    reset();
   };
 
   const renderForm = (
@@ -50,31 +60,52 @@ export default function RegisterView() {
         <Controller
           control={control}
           name="firstName"
-          render={({ field }) => <TextField {...field} required type="text" label="First Name" />}
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              {...field}
+              label="First Name"
+              error={!!error}
+              helperText={error && error.message}
+            />
+          )}
         />
 
         <Controller
           control={control}
           name="lastName"
-          render={({ field }) => <TextField {...field} required type="text" label="Last Name" />}
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              {...field}
+              label="Last Name"
+              error={!!error}
+              helperText={error && error.message}
+            />
+          )}
         />
 
         <Controller
           control={control}
           name="email"
-          render={({ field }) => (
-            <TextField {...field} required type="email" label="Email Address" />
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              {...field}
+              label="Email Address"
+              error={!!error}
+              helperText={error && error.message}
+            />
           )}
         />
 
         <Controller
           control={control}
           name="password"
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <TextField
               {...field}
               label="Password"
               type={show.password ? 'text' : 'password'}
+              error={!!error}
+              helperText={error && error.message}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -94,11 +125,13 @@ export default function RegisterView() {
         <Controller
           control={control}
           name="confirmPassword"
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <TextField
               {...field}
               label="Confirm Password"
-              type={show.password ? 'text' : 'password'}
+              type={show.confirmPassword ? 'text' : 'password'}
+              error={!!error}
+              helperText={error && error.message}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
