@@ -14,6 +14,7 @@ import {
   Typography,
   IconButton,
   InputAdornment,
+  Box,
 } from '@mui/material';
 
 import { bgGradient } from 'src/theme/css';
@@ -55,7 +56,7 @@ export default function RegisterView() {
   };
 
   const renderForm = (
-    <>
+    <FormProvider onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3}>
         <Controller
           control={control}
@@ -160,11 +161,11 @@ export default function RegisterView() {
       <LoadingButton fullWidth size="large" type="submit" variant="contained" color="inherit">
         Register
       </LoadingButton>
-    </>
+    </FormProvider>
   );
 
   return (
-    <FormProvider
+    <Box
       sx={{
         ...bgGradient({
           color: alpha(theme.palette.background.default, 0.9),
@@ -172,7 +173,6 @@ export default function RegisterView() {
         }),
         height: 1,
       }}
-      onSubmit={handleSubmit(onSubmit)}
     >
       <Logo
         sx={{
@@ -202,6 +202,6 @@ export default function RegisterView() {
           {renderForm}
         </Card>
       </Stack>
-    </FormProvider>
+    </Box>
   );
 }

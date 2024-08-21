@@ -1,15 +1,20 @@
 import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
-import Box from '@mui/material/Box';
-import Link from '@mui/material/Link';
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
-import InputAdornment from '@mui/material/InputAdornment';
+import {
+  Link,
+  Card,
+  Stack,
+  TextField,
+  Typography,
+  IconButton,
+  InputAdornment,
+  Box,
+} from '@mui/material';
 
 import { useRouter } from 'src/routes/hooks';
 
@@ -18,9 +23,23 @@ import { bgGradient } from 'src/theme/css';
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 
+import { FormProvider } from 'src/components/hook-form';
+
 // ----------------------------------------------------------------------
+const loginSchema = yup.object({
+  email: yup.string().required('Email is required').email('Email must be a valid email address'),
+  password: yup.string().required('Password is required'),
+});
 
 export default function LoginView() {
+  const { handleSubmit, reset, control } = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    resolver: yupResolver(loginSchema),
+  });
+
   const theme = useTheme();
 
   const router = useRouter();
@@ -28,29 +47,49 @@ export default function LoginView() {
   // STATE VARIABLES
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleClick = () => {
-    // router.push('/register');
-    console.log('Log in successful');
+  // HANDLER FUNCTIONS
+  const onSubmit = (data) => {
+    console.log(data);
+    reset();
   };
 
   const renderForm = (
-    <>
+    <FormProvider onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" />
+        <Controller
+          control={control}
+          name="email"
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              {...field}
+              label="Email Address"
+              error={!!error}
+              helperText={error && error.message}
+            />
+          )}
+        />
 
-        <TextField
+        <Controller
+          control={control}
           name="password"
-          label="Password"
-          type={showPassword ? 'text' : 'password'}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
+          render={({ field, fieldState: { error } }) => (
+            <TextField
+              {...field}
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              error={!!error}
+              helperText={error && error.message}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
         />
       </Stack>
 
@@ -60,17 +99,10 @@ export default function LoginView() {
         </Link> */}
       </Stack>
 
-      <LoadingButton
-        fullWidth
-        size="large"
-        type="submit"
-        variant="contained"
-        color="inherit"
-        onClick={handleClick}
-      >
+      <LoadingButton fullWidth size="large" type="submit" variant="contained" color="inherit">
         Login
       </LoadingButton>
-    </>
+    </FormProvider>
   );
 
   return (
