@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import axios from 'src/utils/axios';
 
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
@@ -22,13 +23,15 @@ import { bgGradient } from 'src/theme/css';
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 import { FormProvider } from 'src/components/hook-form';
+import { useSnackbar } from 'src/hooks';
+import { useRouter } from 'src/routes/hooks';
 
 // ----------------------------------------------------------------------
 const registerSchema = yup.object({
   firstName: yup.string().required('First Name is required'),
   lastName: yup.string().required('Last Name is required'),
   email: yup.string().required('Email is required').email('Email must be a valid email address'),
-  password: yup.string().required('Password is required'),
+  password: yup.string().required('Password is required').min(6, 'Password must have 6 characters'),
   confirmPassword: yup.string().oneOf([yup.ref('password'), null], 'Password must match'),
 });
 
@@ -46,13 +49,24 @@ export default function RegisterView() {
 
   const theme = useTheme();
 
+  const router = useRouter();
+
+  const { alertSnackbar } = useSnackbar();
+
   // STATE VARIABLES
   const [show, setShow] = useState({ password: false, confirmPassword: false });
 
   // HANDLER FUNCTIONS
-  const onSubmit = (data) => {
-    console.log(data);
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      delete data.confirmPassword;
+      await axios.post('/api/auth/register', data);
+      reset();
+      router.push('/login');
+      alertSnackbar('Register successful! You can now log in.', 'success');
+    } catch (err) {
+      alertSnackbar(err.message, 'warning');
+    }
   };
 
   const renderForm = (
