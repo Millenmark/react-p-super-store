@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import axios from 'src/utils/axios';
 
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
@@ -23,7 +24,10 @@ import { bgGradient } from 'src/theme/css';
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 
+import { GeneralContext } from 'src/contexts/general-context';
+
 import { FormProvider } from 'src/components/hook-form';
+import { useSnackbar } from 'src/hooks';
 
 // ----------------------------------------------------------------------
 const loginSchema = yup.object({
@@ -40,17 +44,33 @@ export default function LoginView() {
     resolver: yupResolver(loginSchema),
   });
 
+  const { setUser } = useContext(GeneralContext);
+
   const theme = useTheme();
 
   const router = useRouter();
+
+  const { alertSnackbar } = useSnackbar();
 
   // STATE VARIABLES
   const [showPassword, setShowPassword] = useState(false);
 
   // HANDLER FUNCTIONS
-  const onSubmit = (data) => {
-    console.log(data);
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      const res = await axios.post('/api/auth/login', data);
+      if (res.status === 200) {
+        const {
+          data: { user },
+        } = await axios.get('/api/auth/profile');
+        setUser(user);
+        alertSnackbar(res?.data?.message, 'success');
+        router.push('/');
+        reset();
+      }
+    } catch (err) {
+      alertSnackbar(err.message, 'warning');
+    }
   };
 
   const renderForm = (
