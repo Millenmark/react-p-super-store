@@ -3,6 +3,7 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
 import AuthGuard from 'src/components/general/auth-guard';
+import GuestGuard from 'src/components/general/guest-guard';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
@@ -35,19 +36,23 @@ export default function Router() {
     },
     {
       path: 'login',
-      element: <LoginPage />,
+      element: (
+        <GuestGuard>
+          <LoginPage />
+        </GuestGuard>
+      ),
     },
     {
       path: 'register',
-      element: <RegisterPage />,
-    },
-    {
-      path: '404',
-      element: <Page404 />,
+      element: (
+        <GuestGuard>
+          <RegisterPage />
+        </GuestGuard>
+      ),
     },
     {
       path: '*',
-      element: <Navigate to="/404" replace />,
+      element: <Page404 />,
     },
   ]);
 

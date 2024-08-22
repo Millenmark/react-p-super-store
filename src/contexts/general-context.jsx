@@ -7,15 +7,16 @@ export const GeneralContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    (async () => {
       try {
-        const response = await axios.get('/api/auth/profile');
-        setUser(response.data.user); // Store user data in state if authenticated
-      } catch (error) {
-        setUser(null); // Clear user state if not authenticated
+        const {
+          data: { user },
+        } = await axios.get('/api/auth/profile');
+        setUser(user);
+      } catch (err) {
+        setUser(null);
       }
-    };
-    checkAuth();
+    })();
   }, []);
 
   const value = { user, setUser };
